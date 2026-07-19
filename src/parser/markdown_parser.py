@@ -1,13 +1,20 @@
 import logging
 import re
 
-from models.entities import DocumentSection
+from models.document_section import DocumentSection
 
 logger = logging.getLogger(__name__)
 
 
 class MarkdownParser:
     HEADING_REGEX = re.compile(r"^(#{1,6})\s+(.*)$")
+
+    @property
+    def supported_extensions(self) -> set[str]:
+        return {
+            ".md",
+            ".markdown",
+        }
 
     def parse(self, file_path: str) -> list[DocumentSection]:
         sections: list[DocumentSection] = []
@@ -88,7 +95,7 @@ class MarkdownParser:
         text = "".join(content).strip()
 
         return DocumentSection(
-            id=f"{file_path}::{start_line}",
+            id=f"{file_path}::{title}",
             title=title,
             content=text,
             file_path=file_path,

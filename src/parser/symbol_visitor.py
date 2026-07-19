@@ -1,6 +1,6 @@
 import ast
 
-from models.entities import CodeSymbol
+from models.code_symbol import CodeSymbol
 from models.enums import SymbolType
 
 

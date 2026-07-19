@@ -10,6 +10,14 @@ class BaseParser(ABC, Generic[T]):
     Every parser must implement parse().
     """
 
+    @property
+    @abstractmethod
+    def supported_extensions(self) -> set[str]:
+        """
+        Return the set of file extensions supported by this parser.
+        """
+        pass
+
     @abstractmethod
     def parse(self, file_path: str) -> list[T]:
         """
