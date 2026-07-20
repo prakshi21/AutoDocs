@@ -22,11 +22,11 @@ def main() -> None:
 
     builder = RepositoryDocumentBuilder()
 
-    documents = builder.build(repository_index)
+    collection = builder.build(repository_index)
 
     print("=" * 80)
 
-    for document in documents:
+    for document in collection:
         print(f"Title : {document.title}")
         print(f"Type  : {document.document_type.value}")
         print(f"ID    : {document.id}")

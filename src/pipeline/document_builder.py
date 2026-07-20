@@ -3,6 +3,7 @@ from models.document_section import DocumentSection
 from models.document_type import DocumentType
 from models.repository_document import RepositoryDocument
 from analyzer.repository_index import RepositoryIndex
+from pipeline.repository_document_collection import RepositoryDocumentCollection
 
 
 class RepositoryDocumentBuilder:
@@ -13,20 +14,20 @@ class RepositoryDocumentBuilder:
     def build(
         self,
         repository_index: RepositoryIndex,
-    ) -> list[RepositoryDocument]:
+    ) -> RepositoryDocumentCollection:
         """
         Build RepositoryDocuments from a RepositoryIndex.
         """
 
-        documents: list[RepositoryDocument] = []
+        collection = RepositoryDocumentCollection()
 
         for section in repository_index.all_documents:
-            documents.append(self._build_documentation(section))
+            collection.add(self._build_documentation(section))
 
         for symbol in repository_index.all_symbols:
-            documents.append(self._build_symbol(symbol))
+            collection.add(self._build_symbol(symbol))
 
-        return documents
+        return collection
 
     def _build_documentation(
         self,
