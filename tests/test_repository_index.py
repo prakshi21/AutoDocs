@@ -1,32 +1,32 @@
-from analyser.repository_index import RepositoryIndex
-from analyser.repository_indexer import RepositoryIndexer
+from analyzer.repository_index import RepositoryIndex
+from analyzer.repository_indexer import RepositoryIndexer
 from parser.markdown_parser import MarkdownParser
+from parser.parser_registry import ParserRegistry
 from parser.python_parser import PythonParser
+from parser.repository_walker import RepositoryWalker
 
 
 def test_build_repository_index():
-    python_parser = PythonParser()
-    markdown_parser = MarkdownParser()
+    walker = RepositoryWalker()
+    registry = ParserRegistry()
+    registry.register(PythonParser())
+    registry.register(MarkdownParser())
 
-    symbols = python_parser.parse("sample_repo/auth.py")
-    documents = markdown_parser.parse("sample_repo/README.md")
-
-    indexer = RepositoryIndexer()
-
-    index = indexer.build(symbols, documents)
+    indexer = RepositoryIndexer(walker, registry)
+    index = indexer.build("sample_repo")
 
     assert isinstance(index, RepositoryIndex)
-
     assert index.symbol_count == 4
     assert index.document_count == 6
 
 
 def test_lookup_symbol():
-    python_parser = PythonParser()
+    walker = RepositoryWalker()
+    registry = ParserRegistry()
+    registry.register(PythonParser())
 
-    symbols = python_parser.parse("sample_repo/auth.py")
-
-    index = RepositoryIndexer().build(symbols, [])
+    indexer = RepositoryIndexer(walker, registry)
+    index = indexer.build("sample_repo")
 
     login = index.get_symbol("sample_repo/auth.py::User.login")
 
@@ -35,11 +35,12 @@ def test_lookup_symbol():
 
 
 def test_lookup_document():
-    markdown_parser = MarkdownParser()
+    walker = RepositoryWalker()
+    registry = ParserRegistry()
+    registry.register(MarkdownParser())
 
-    documents = markdown_parser.parse("sample_repo/README.md")
-
-    index = RepositoryIndexer().build([], documents)
+    indexer = RepositoryIndexer(walker, registry)
+    index = indexer.build("sample_repo")
 
     installation = index.get_document("sample_repo/README.md::Installation")
 
@@ -48,20 +49,22 @@ def test_lookup_document():
 
 
 def test_get_symbols_by_file():
-    python_parser = PythonParser()
+    walker = RepositoryWalker()
+    registry = ParserRegistry()
+    registry.register(PythonParser())
 
-    symbols = python_parser.parse("sample_repo/auth.py")
-
-    index = RepositoryIndexer().build(symbols, [])
+    indexer = RepositoryIndexer(walker, registry)
+    index = indexer.build("sample_repo")
 
     assert len(index.get_symbols("sample_repo/auth.py")) == 4
 
 
 def test_get_documents_by_file():
-    markdown_parser = MarkdownParser()
+    walker = RepositoryWalker()
+    registry = ParserRegistry()
+    registry.register(MarkdownParser())
 
-    documents = markdown_parser.parse("sample_repo/README.md")
-
-    index = RepositoryIndexer().build([], documents)
+    indexer = RepositoryIndexer(walker, registry)
+    index = indexer.build("sample_repo")
 
     assert len(index.get_documents("sample_repo/README.md")) == 6

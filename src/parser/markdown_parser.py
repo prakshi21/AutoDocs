@@ -2,11 +2,12 @@ import logging
 import re
 
 from models.document_section import DocumentSection
+from parser.base_parser import BaseParser
 
 logger = logging.getLogger(__name__)
 
 
-class MarkdownParser:
+class MarkdownParser(BaseParser[DocumentSection]):
     HEADING_REGEX = re.compile(r"^(#{1,6})\s+(.*)$")
 
     @property
