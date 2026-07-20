@@ -3,6 +3,7 @@ from parser.markdown_parser import MarkdownParser
 from parser.parser_registry import ParserRegistry
 from parser.python_parser import PythonParser
 from parser.repository_walker import RepositoryWalker
+from pipeline.document_builder import RepositoryDocumentBuilder
 
 
 def main() -> None:
@@ -17,28 +18,23 @@ def main() -> None:
         parser_registry=registry,
     )
 
-    index = indexer.build("sample_repo")
+    repository_index = indexer.build("sample_repo")
 
-    print("=" * 60)
-    print("Repository Summary")
-    print("=" * 60)
+    builder = RepositoryDocumentBuilder()
 
-    print(f"Symbols: {index.symbol_count}")
-    print(f"Documents: {index.document_count}")
+    documents = builder.build(repository_index)
 
-    print("\nCode Symbols")
-    print("-" * 60)
+    print("=" * 80)
 
-    for symbol in index.all_symbols:
-        print(
-            f"{symbol.symbol_type.value:10}" f"{symbol.name:25}" f"{symbol.file_path}"
-        )
-
-    print("\nMarkdown Sections")
-    print("-" * 60)
-
-    for section in index.all_documents:
-        print(f"L{section.level} " f"{section.title}")
+    for document in documents:
+        print(f"Title : {document.title}")
+        print(f"Type  : {document.document_type.value}")
+        print(f"ID    : {document.id}")
+        print("Metadata")
+        print(document.metadata)
+        print("-" * 80)
+        print(document.content)
+        print("=" * 80)
 
 
 if __name__ == "__main__":
