@@ -1,4 +1,8 @@
 from analyzer.repository_indexer import RepositoryIndexer
+from chunking.chunking_config import ChunkingConfig
+from chunking.repository_chunker import RepositoryChunker
+from chunking.semantic_splitter import SemanticSplitter
+from chunking.token_counter import ApproximateTokenCounter
 from parser.markdown_parser import MarkdownParser
 from parser.parser_registry import ParserRegistry
 from parser.python_parser import PythonParser
@@ -24,18 +28,29 @@ def main() -> None:
 
     collection = builder.build(repository_index)
 
+    config = ChunkingConfig()
+
+    chunker = RepositoryChunker(
+        semantic_splitter=SemanticSplitter(),
+        token_counter=ApproximateTokenCounter(),
+        config=config,
+    )
+
+    chunks = chunker.chunk(collection)
+
     print("=" * 80)
 
-    for document in collection:
-        print(f"Title : {document.title}")
-        print(f"Type  : {document.document_type.value}")
-        print(f"ID    : {document.id}")
+    for chunk in chunks:
+        print(f"ID     : {chunk.id}")
+        print(f"Parent : {chunk.parent_document_id}")
+        print(f"Index  : {chunk.chunk_index}")
         print("Metadata")
-        print(document.metadata)
+        print(chunk.metadata)
         print("-" * 80)
-        print(document.content)
+        print(chunk.content)
         print("=" * 80)
 
 
 if __name__ == "__main__":
     main()
+
