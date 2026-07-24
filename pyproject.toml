@@ -4,7 +4,26 @@ extraPaths = ["src"]
 
 [tool.mypy]
 mypy_path = "src"
+follow_imports = "skip"
+ignore_missing_imports = true
+exclude = [
+    "\\.venv/",
+]
+
+[[tool.mypy.overrides]]
+module = [
+    "sentence_transformers.*",
+    "transformers.*",
+    "torch.*",
+    "huggingface_hub.*",
+]
+follow_imports = "skip"
+ignore_missing_imports = true
+
+
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
+
+

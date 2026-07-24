@@ -1,56 +1,34 @@
-from analyzer.repository_indexer import RepositoryIndexer
-from chunking.chunking_config import ChunkingConfig
-from chunking.repository_chunker import RepositoryChunker
-from chunking.semantic_splitter import SemanticSplitter
-from chunking.token_counter import ApproximateTokenCounter
-from parser.markdown_parser import MarkdownParser
-from parser.parser_registry import ParserRegistry
-from parser.python_parser import PythonParser
-from parser.repository_walker import RepositoryWalker
-from pipeline.document_builder import RepositoryDocumentBuilder
+from embeddings.embedding_collection import EmbeddingCollection
+from models.embedding import Embedding
+from vector_store.chroma_config import ChromaConfig
+from vector_store.chroma_vector_store import ChromaVectorStore
 
+config = ChromaConfig()
 
-def main() -> None:
-    registry = ParserRegistry()
-    registry.register(PythonParser())
-    registry.register(MarkdownParser())
+store = ChromaVectorStore(config)
 
-    walker = RepositoryWalker()
-
-    indexer = RepositoryIndexer(
-        repository_walker=walker,
-        parser_registry=registry,
+embeddings = EmbeddingCollection()
+embeddings.add(
+    Embedding(
+        chunk_id="chunk1",
+        vector=[1.0, 0.0, 0.0],
     )
-
-    repository_index = indexer.build("sample_repo")
-
-    builder = RepositoryDocumentBuilder()
-
-    collection = builder.build(repository_index)
-
-    config = ChunkingConfig()
-
-    chunker = RepositoryChunker(
-        semantic_splitter=SemanticSplitter(),
-        token_counter=ApproximateTokenCounter(),
-        config=config,
+)
+embeddings.add(
+    Embedding(
+        chunk_id="chunk2",
+        vector=[0.0, 1.0, 0.0],
     )
+)
 
-    chunks = chunker.chunk(collection)
+store.add(embeddings)
 
-    print("=" * 80)
+query = embeddings.embeddings[0].vector
 
-    for chunk in chunks:
-        print(f"ID     : {chunk.id}")
-        print(f"Parent : {chunk.parent_document_id}")
-        print(f"Index  : {chunk.chunk_index}")
-        print("Metadata")
-        print(chunk.metadata)
-        print("-" * 80)
-        print(chunk.content)
-        print("=" * 80)
+results = store.search(
+    query,
+    k=3,
+)
 
-
-if __name__ == "__main__":
-    main()
-
+for embedding in results:
+    print(embedding.chunk_id)
