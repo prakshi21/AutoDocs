@@ -17,7 +17,7 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
         self._config = config
         self._model = SentenceTransformer(config.model_name)
 
-    def embed_chunk(
+    def embed_documents(
         self,
         chunks: list[DocumentChunk],
     ) -> list[Embedding]:
@@ -42,3 +42,18 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
             )
 
         return embeddings
+
+    def embed_query(
+        self,
+        query: str,
+    ) -> list[float]:
+        """
+        Generate an embedding for a user query.
+        """
+
+        vector = self._model.encode(
+            query,
+            convert_to_numpy=True,
+        )
+
+        return vector.tolist()

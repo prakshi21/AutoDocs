@@ -22,7 +22,7 @@ class EmbeddingGenerator:
         Generate embeddings for all document chunks.
         """
 
-        embedding_list = self._provider.embed_chunk(list(chunks))
+        embedding_list = self._provider.embed_documents(list(chunks))
 
         collection = EmbeddingCollection()
 

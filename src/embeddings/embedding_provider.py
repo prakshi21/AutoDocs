@@ -5,15 +5,21 @@ from models.embedding import Embedding
 
 
 class EmbeddingProvider(Protocol):
-    """
-    Interface for embedding providers.
-    """
 
-    def embed_chunk(
+    def embed_documents(
         self,
         chunks: list[DocumentChunk],
     ) -> list[Embedding]:
         """
-        Generate embeddings for multiple document chunks.
+        Generate embeddings for repository chunks.
+        """
+        ...
+
+    def embed_query(
+        self,
+        query: str,
+    ) -> list[float]:
+        """
+        Generate an embedding for a user query.
         """
         ...

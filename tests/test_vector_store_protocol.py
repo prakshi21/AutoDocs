@@ -1,6 +1,7 @@
 from embeddings.embedding_collection import EmbeddingCollection
 from models.embedding import Embedding
 from vector_store.vector_store import VectorStore
+from retrieval.search_result import SearchResult
 
 
 class FakeVectorStore:
@@ -17,8 +18,15 @@ class FakeVectorStore:
         self,
         query_embedding: list[float],
         k: int = 5,
-    ) -> list[Embedding]:
-        return self._embeddings[:k]
+    ) -> list[SearchResult]:
+        return [
+            SearchResult(
+                chunk_id=emb.chunk_id,
+                score=1.0,
+                metadata=emb.metadata,
+            )
+            for emb in self._embeddings[:k]
+        ]
 
 
 def test_fake_vector_store():
@@ -40,3 +48,4 @@ def test_fake_vector_store():
 
     assert len(results) == 1
     assert results[0].chunk_id == "1"
+    assert isinstance(results[0], SearchResult)

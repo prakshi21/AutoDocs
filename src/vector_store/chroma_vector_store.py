@@ -3,9 +3,9 @@ import chromadb
 from chromadb.config import Settings
 
 from embeddings.embedding_collection import EmbeddingCollection
-from models.embedding import Embedding
 from vector_store.chroma_config import ChromaConfig
 from vector_store.vector_store import VectorStore
+from retrieval.search_result import SearchResult
 
 
 class ChromaVectorStore(VectorStore):
@@ -46,7 +46,7 @@ class ChromaVectorStore(VectorStore):
             return
 
         has_non_empty = any(len(embedding.metadata) > 0 for embedding in embeddings)
-        metadatas = (
+        metadatas: chromadb.Metadatas | None = (
             [
                 (
                     embedding.metadata
@@ -69,53 +69,35 @@ class ChromaVectorStore(VectorStore):
         self,
         query_embedding: list[float],
         k: int = 5,
-    ) -> list[Embedding]:
-        """
-        Search for the most similar embeddings.
-        """
+    ) -> list[SearchResult]:
 
         results = self._collection.query(
             query_embeddings=[query_embedding],
             n_results=k,
             include=[
-                "embeddings",
+                "distances",
                 "metadatas",
             ],
         )
 
-        ids = results.get("ids")
-        if not ids or not ids[0]:
-            return []
+        ids = results["ids"][0] if results["ids"] is not None else []
+        distances = results["distances"][0] if results["distances"] is not None else []
+        metadatas = results["metadatas"][0] if results["metadatas"] is not None else []
 
-        vectors = results.get("embeddings")
-        metadatas = results.get("metadatas")
+        search_results: list[SearchResult] = []
 
-        ids_list = ids[0]
-        vectors_list = vectors[0] if vectors is not None else [[]] * len(ids_list)
-        metadatas_list = (
-            metadatas[0] if metadatas is not None else [None] * len(ids_list)
-        )
-
-        embeddings: list[Embedding] = []
-        for chunk_id, vector, metadata in zip(
-            ids_list,
-            vectors_list,
-            metadatas_list,
+        for chunk_id, distance, metadata in zip(
+            ids,
+            distances,
+            metadatas,
         ):
-            clean_metadata: dict[str, str] = {}
-            if metadata is not None:
-                clean_metadata = {
-                    k: str(v)
-                    for k, v in metadata.items()
-                    if k != "_placeholder" and v is not None
-                }
-
-            embeddings.append(
-                Embedding(
+            search_results.append(
+                SearchResult(
                     chunk_id=chunk_id,
-                    vector=vector,
-                    metadata=clean_metadata,
+                    score=1.0 - float(distance),
+                    metadata={k: str(v) for k, v in metadata.items()} if metadata else {},
                 )
             )
 
-        return embeddings
+        return search_results
+

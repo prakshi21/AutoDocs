@@ -5,7 +5,7 @@ from pipeline.document_chunk_collection import DocumentChunkCollection
 
 
 class FakeEmbeddingProvider:
-    def embed_chunk(
+    def embed_documents(
         self,
         chunks: list[DocumentChunk],
     ) -> list[Embedding]:
@@ -16,6 +16,12 @@ class FakeEmbeddingProvider:
             )
             for chunk in chunks
         ]
+
+    def embed_query(
+        self,
+        query: str,
+    ) -> list[float]:
+        return [1.0, 2.0, 3.0]
 
 
 def test_generate_embeddings():

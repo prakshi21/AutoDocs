@@ -18,7 +18,7 @@ def test_generate_embedding():
         content="Machine learning is amazing.",
     )
 
-    embeddings = provider.embed_chunk([chunk])
+    embeddings = provider.embed_documents([chunk])
 
     assert len(embeddings) == 1
     embedding = embeddings[0]

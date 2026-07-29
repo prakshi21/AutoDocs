@@ -4,14 +4,23 @@ from models.embedding import Embedding
 
 
 class FakeEmbeddingProvider:
-    def embed_chunk(
+    def embed_documents(
         self,
-        chunk: DocumentChunk,
-    ) -> Embedding:
-        return Embedding(
-            chunk_id=chunk.id,
-            vector=[1.0, 2.0, 3.0],
-        )
+        chunks: list[DocumentChunk],
+    ) -> list[Embedding]:
+        return [
+            Embedding(
+                chunk_id=chunk.id,
+                vector=[1.0, 2.0, 3.0],
+            )
+            for chunk in chunks
+        ]
+
+    def embed_query(
+        self,
+        query: str,
+    ) -> list[float]:
+        return [1.0, 2.0, 3.0]
 
 
 def test_fake_provider_implements_protocol():
@@ -25,8 +34,11 @@ def test_fake_provider_implements_protocol():
         content="Hello",
     )
 
-    embedding = provider.embed_chunk(chunk)
+    embeddings = provider.embed_documents([chunk])
 
-    assert embedding.chunk_id == "chunk1"
+    assert len(embeddings) == 1
+    assert embeddings[0].chunk_id == "chunk1"
+    assert embeddings[0].vector == [1.0, 2.0, 3.0]
 
-    assert embedding.vector == [1.0, 2.0, 3.0]
+    query_vector = provider.embed_query("test query")
+    assert query_vector == [1.0, 2.0, 3.0]

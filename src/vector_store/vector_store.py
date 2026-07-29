@@ -1,7 +1,7 @@
 from typing import Protocol
 
 from embeddings.embedding_collection import EmbeddingCollection
-from models.embedding import Embedding
+from retrieval.search_result import SearchResult
 
 
 class VectorStore(Protocol):
@@ -22,7 +22,7 @@ class VectorStore(Protocol):
         self,
         query_embedding: list[float],
         k: int = 5,
-    ) -> list[Embedding]:
+    ) -> list[SearchResult]:
         """
         Return the k most similar embeddings.
         """
