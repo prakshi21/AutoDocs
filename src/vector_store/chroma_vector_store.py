@@ -95,9 +95,10 @@ class ChromaVectorStore(VectorStore):
                 SearchResult(
                     chunk_id=chunk_id,
                     score=1.0 - float(distance),
-                    metadata={k: str(v) for k, v in metadata.items()} if metadata else {},
+                    metadata=(
+                        {k: str(v) for k, v in metadata.items()} if metadata else {}
+                    ),
                 )
             )
 
         return search_results
-
