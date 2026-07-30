@@ -1,34 +1,14 @@
-from embeddings.embedding_collection import EmbeddingCollection
-from models.embedding import Embedding
-from vector_store.chroma_config import ChromaConfig
-from vector_store.chroma_vector_store import ChromaVectorStore
+from dotenv import load_dotenv
 
-config = ChromaConfig()
+from app.bootstrap import build_repository_qa
 
-store = ChromaVectorStore(config)
+load_dotenv()
 
-embeddings = EmbeddingCollection()
-embeddings.add(
-    Embedding(
-        chunk_id="chunk1",
-        vector=[1.0, 0.0, 0.0],
-    )
-)
-embeddings.add(
-    Embedding(
-        chunk_id="chunk2",
-        vector=[0.0, 1.0, 0.0],
-    )
-)
+qa = build_repository_qa("sample_repo")
 
-store.add(embeddings)
+response = qa.ask("How does login work?")
 
-query = embeddings.embeddings[0].vector
-
-results = store.search(
-    query,
-    k=3,
-)
-
-for embedding in results:
-    print(embedding.chunk_id)
+print("\n")
+print("=" * 80)
+print(response.answer)
+print("=" * 80)
